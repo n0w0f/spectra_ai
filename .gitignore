@@ -6,6 +6,7 @@ __pycache__/
 #env files
 /src/.env
 /src/wandb
+/models/*.pth
 
 # C extensions
 *.so
