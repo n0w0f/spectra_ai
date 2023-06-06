@@ -33,7 +33,7 @@ def train(model, loader, optimizer, criterion, checkpoint_path=checkpoint_path, 
             edge_index, y, atom, pos = data.edge_index, data.y, data.atom, data.pos
             optimizer.zero_grad()
             out = model(torch.cat((atom, pos), dim=-1), data.batch, edge_index)
-            loss = criterion(out.T, y)
+            loss = criterion(out.view(-1).squeeze(), y.squeeze())
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
