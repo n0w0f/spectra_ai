@@ -20,8 +20,6 @@ checkpoint_path = os.getenv("CHECKPOINT_PATH")
 wandb.login()
 
 
-
-
 def train(model, loader, optimizer, criterion, checkpoint_path=checkpoint_path, checkpoint_epochs=5):
     wandb.init(project=project_name, name="training-run")
     wandb.watch(model)
@@ -33,7 +31,7 @@ def train(model, loader, optimizer, criterion, checkpoint_path=checkpoint_path, 
             edge_index, y, atom, pos = data.edge_index, data.y, data.atom, data.pos
             optimizer.zero_grad()
             out = model(torch.cat((atom, pos), dim=-1), data.batch, edge_index)
-            loss = criterion(out.view(-1).squeeze(), y.squeeze())
+            loss = criterion(out.view(-1).squeeze(), y)
             loss.backward()
             optimizer.step()
             total_loss += loss.item()

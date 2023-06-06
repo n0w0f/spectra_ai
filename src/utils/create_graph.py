@@ -17,7 +17,7 @@ def create_graph(atom,coordinates,absorption_coefficients):
     
     atom = torch.tensor(atom.unsqueeze(1).float())
     pos = torch.tensor(coordinates.float())
-    y = torch.tensor([absorption_coefficients]).T.float()
+    y = torch.tensor([absorption_coefficients]).squeeze().float()
 
 
     
