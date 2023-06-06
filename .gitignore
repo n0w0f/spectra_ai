@@ -2,6 +2,11 @@
 __pycache__/
 *.py[cod]
 
+
+#env files
+/src/.env
+/src/wandb
+
 # C extensions
 *.so
 
