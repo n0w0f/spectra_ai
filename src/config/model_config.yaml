@@ -1,0 +1,10 @@
+batch_size: 1
+shuffle: true
+
+model_params:
+  in_channels: 4
+  hidden_channels1: 32
+  hidden_channels2: 64
+  out_channels: 128
+
+learning_rate: 0.1
