@@ -17,6 +17,7 @@ train_data_list, val_data_list, test_data_list = data_prep.prep_data()
 
 
 batch_size = config['batch_size']
+epochs = config['epochs']
 shuffle = config['shuffle']
 in_channels = config['model_params']['in_channels']
 hidden_channels1 = config['model_params']['hidden_channels1']
@@ -29,6 +30,7 @@ learning_rate = config['learning_rate']
 
 # Create data loader
 train_loader = DataLoader(train_data_list, batch_size=batch_size, shuffle=shuffle)
+val_loader = DataLoader(val_data_list, batch_size=batch_size, shuffle=shuffle)
 
 # Create model
 model = GCNModel(in_channels, hidden_channels1, hidden_channels2, out_channels,no_of_points)
@@ -38,5 +40,5 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 criterion = torch.nn.MSELoss()
 
 # Train the model
-train(model, train_loader, optimizer, criterion)
+train(model, train_loader, val_loader, optimizer, criterion, epochs)
 

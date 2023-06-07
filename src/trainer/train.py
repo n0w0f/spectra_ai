@@ -19,15 +19,14 @@ checkpoint_path = os.getenv("CHECKPOINT_PATH")
 
 wandb.login()
 
-
-def train(model, loader, optimizer, criterion, checkpoint_path=checkpoint_path, checkpoint_epochs=5):
+def train(model, train_loader, val_loader, optimizer, criterion, epochs, checkpoint_path=None, checkpoint_epochs=5):
     wandb.init(project=project_name, name="training-run")
     wandb.watch(model)
 
-    model.train()
-    for epoch in range(30):
+    for epoch in range(epochs):
+        model.train()
         total_loss = 0
-        for data in loader:
+        for data in train_loader:
             edge_index, y, atom, pos = data.edge_index, data.y, data.atom, data.pos
             optimizer.zero_grad()
             out = model(torch.cat((atom, pos), dim=-1), data.batch, edge_index)
@@ -36,19 +35,23 @@ def train(model, loader, optimizer, criterion, checkpoint_path=checkpoint_path, 
             optimizer.step()
             total_loss += loss.item()
 
-        avg_loss = total_loss / len(loader)
-        print(f"Epoch {epoch + 1}, Average Loss: {avg_loss:.4f}")
-        wandb.log({"Epoch": epoch + 1, "Average Loss": avg_loss})
+        avg_loss = total_loss / len(train_loader)
+        print(f"Epoch {epoch + 1}, Average Training Loss: {avg_loss:.4f}")
+        wandb.log({"Epoch": epoch + 1, "Average Training Loss": avg_loss})
 
-        checkpoint_file = os.path.join(checkpoint_path, f"{epoch}checkpoint.pth")
+        # Evaluate on the validation set
+        val_loss = evaluate(model, val_loader, criterion)
+        wandb.log({"Epoch": epoch + 1, "Average Validation Loss": val_loss})
 
         if checkpoint_path and (epoch + 1) % checkpoint_epochs == 0:
             # Save model checkpoint
+            checkpoint_file = os.path.join(checkpoint_path, f"{epoch}checkpoint.pth")
             checkpoint = {
                 'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'loss': avg_loss
+                'train_loss': avg_loss,
+                'val_loss': val_loss
             }
             torch.save(checkpoint, checkpoint_file)
             print("Checkpoint saved")
@@ -56,3 +59,24 @@ def train(model, loader, optimizer, criterion, checkpoint_path=checkpoint_path, 
     wandb.finish()
     print("Training completed")
 
+
+def evaluate(model, loader, criterion):
+    model.eval()
+    total_loss = 0
+    with torch.no_grad():
+        for data in loader:
+            edge_index, y, atom, pos = data.edge_index, data.y, data.atom, data.pos
+            out = model(torch.cat((atom, pos), dim=-1), data.batch, edge_index)
+            loss = criterion(out.view(-1).squeeze(), y)
+            total_loss += loss.item()
+
+    avg_loss = total_loss / len(loader)
+    print(f"Average Loss on Evaluation Set: {avg_loss:.4f}")
+#    wandb.log({"Average Loss on Evaluation Set": avg_loss})
+
+    # Log model weights and biases
+    for name, param in model.named_parameters():
+        wandb.log({"Weights/" + name: param.detach()})
+        wandb.log({"Biases/" + name: param.detach()})
+
+    return avg_loss
