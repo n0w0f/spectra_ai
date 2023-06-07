@@ -7,8 +7,12 @@ model_params:
   hidden_channels2: 64
   out_channels: 128
 
+
 learning_rate: 0.1
 
 split_ratio:
   train: 0.8
   val: 0.1
+
+absorption_coeff_config:
+  no_of_points_to_predict : 100

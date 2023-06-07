@@ -12,3 +12,5 @@ def split_data(data_list, train_ratio, val_ratio):
     train_data, val_data, test_data = random_split(data_list, [train_size, val_size, test_size])
 
     return train_data, val_data, test_data
+
+

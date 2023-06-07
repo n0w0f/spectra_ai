@@ -3,7 +3,7 @@ import torch
 import yaml
 
 
-from utils import create_graph
+from utils.data_prep_helpers import create_graph , select_data_points
 from utils.normalize import normalize_data
 from utils.split_data import split_data
 
@@ -24,15 +24,18 @@ def data_to_graph():
     for mp_data_dict in mp_data_dicts:
         atomic_numbers = torch.tensor(mp_data_dict['structure'].atomic_numbers)
         coordinates = torch.tensor(mp_data_dict['structure'].cart_coords)
-        energies = mp_data_dict['energies']
+       # energies = mp_data_dict['energies']
         absorption_coefficients = mp_data_dict['absorption_coefficient']
-
         # Check if atomic_numbers and coordinates have the same length
         if len(atomic_numbers) != len(coordinates):
             print(f"Size mismatch for atomic_numbers and coordinates in MPID {mp_data_dict['mpid']}. Skipping this data point.")
             continue
+
+        no_of_points = config['absorption_coeff_config']['no_of_points_to_predict']
+        absorption_coefficients = select_data_points(absorption_coefficients, no_of_points)
+
         
-        data = create_graph.create_graph(atomic_numbers,coordinates,absorption_coefficients)
+        data = create_graph(atomic_numbers,coordinates,absorption_coefficients)
         data_list.append(data)
     return data_list
 

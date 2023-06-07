@@ -22,6 +22,7 @@ in_channels = config['model_params']['in_channels']
 hidden_channels1 = config['model_params']['hidden_channels1']
 hidden_channels2 = config['model_params']['hidden_channels2']
 out_channels = config['model_params']['out_channels']
+no_of_points = config['absorption_coeff_config']['no_of_points_to_predict']
 learning_rate = config['learning_rate']
 
 
@@ -30,7 +31,7 @@ learning_rate = config['learning_rate']
 train_loader = DataLoader(train_data_list, batch_size=batch_size, shuffle=shuffle)
 
 # Create model
-model = GCNModel(in_channels, hidden_channels1, hidden_channels2, out_channels)
+model = GCNModel(in_channels, hidden_channels1, hidden_channels2, out_channels,no_of_points)
 
 # Create optimizer and criterion
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)

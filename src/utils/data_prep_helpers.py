@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch_geometric.data import Data
 
@@ -25,3 +26,19 @@ def create_graph(atom,coordinates,absorption_coefficients):
     data = Data(atom=atom, pos=pos,y=y, edge_index=edge_index)
     
     return data
+
+
+def select_data_points(absorption_coefficients, X):
+    if X >= len(absorption_coefficients):
+        return absorption_coefficients
+
+    # Calculate the interval between selected data points
+    interval = len(absorption_coefficients) / X
+
+    # Create an array of indices to select
+    indices = np.arange(0, len(absorption_coefficients), interval, dtype=int)
+
+    # Select data points at the specified indices
+    selected_data = [absorption_coefficients[i] for i in indices]
+
+    return selected_data
